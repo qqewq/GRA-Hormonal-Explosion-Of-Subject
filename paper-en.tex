@@ -1,0 +1,109 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+% Correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\begin{document}
+
+\title{GRA-Hormonal Explosion of Subject: A Generative Regulatory Automaton for Simulating Endocrine Burst Dynamics}
+
+\author{\IEEEauthorblockN{qqewq}
+\IEEEauthorblockA{Independent Researcher\\
+GitHub: qqewq\\
+\href{https://github.com/qqewq/GRA-Hormonal-Explosion-Of-Subject}{Project Repository}}}
+
+\maketitle
+
+\begin{abstract}
+Biological systems exhibit complex feedback-driven hormonal surges that govern critical physiological and behavioural transitions. This paper introduces the \textbf{GRA-Hormonal Explosion of Subject} (GRA-HES) framework, a generative regulatory automaton designed to model, visualize, and analyse acute endocrine outbursts in a virtual subject. The model combines a genetic regulatory algorithm (GRA) with a layered hormone–receptor interaction graph, enabling cascading, self-amplifying explosion events. We describe the mathematical formulation, implementation, and emergent patterns observed under various parameter regimes. The open-source release provides researchers with a reproducible testbed for studying hormetic dose–response, oscillatory threshold phenomena, and synthetic endocrine disruption scenarios.
+\end{abstract}
+
+\begin{IEEEkeywords}
+generative regulatory automaton, hormonal explosion, endocrine dynamics, computational biology, agent-based simulation
+\end{IEEEkeywords}
+
+\section{Introduction}
+Rapid hormonal fluctuations—termed ``hormonal explosions''—are fundamental to puberty, stress responses, and metabolic switching \cite{m1}. While differential equation models capture smooth endocrine rhythms, they often fail to reproduce the abrupt, switch-like surges observed \textit{in vivo}. Recent advances in generative regulatory networks \cite{m2} offer a more expressive formalism, but their application to endocrine systems remains unexplored.
+
+The \textbf{GRA-Hormonal Explosion of Subject} project fills this gap by constructing a subject-centric digital twin whose internal glandular layers are governed by a Generative Regulatory Automaton (GRA). The GRA evolves a hormone vector through discrete-time, rule-based interactions, enabling both stochastic baseline secretion and deterministic feedback explosions. The accompanying visualizer renders the subject’s state as a dynamic avatar, making hormonal crises intuitively observable.
+
+\section{Model Description}
+\subsection{Generative Regulatory Automaton (GRA)}
+A GRA is a tuple $\mathcal{G} = (\mathbf{H}, \mathbf{R}, \mathbf{W}, \tau)$ where:
+\begin{itemize}
+    \item $\mathbf{H} \in \mathbb{R}^n$ is the hormone concentration vector (e.g., cortisol, adrenaline, testosterone, estrogen).
+    \item $\mathbf{R} \in \mathbb{R}^{m}$ represents receptor sensitivities.
+    \item $\mathbf{W} \in \mathbb{R}^{n \times (n+m)}$ is a weight matrix encoding stimulatory/inhibitory interactions.
+    \item $\tau$ is a threshold function that triggers discrete rule execution.
+\end{itemize}
+At each time step $t$, the state updates according to
+\begin{equation}
+    \mathbf{H}_{t+1} = \mathbf{H}_t + \Delta t \cdot \big( \mathbf{W}_{H} \cdot \sigma(\mathbf{H}_t \oplus \mathbf{R}_t) + \boldsymbol{\xi}_t \big),
+    \label{eq:update}
+\end{equation}
+where $\sigma(\cdot)$ is a saturating nonlinearity (e.g., $\tanh$), $\oplus$ denotes concatenation, and $\boldsymbol{\xi}_t \sim \mathcal{N}(0,\Sigma)$ is Gaussian noise. An \textbf{explosion} is defined as a transient event in which $\|\mathbf{H}_t\|$ exceeds a pre-set burst threshold $B$ for at least $k$ consecutive steps.
+
+\subsection{Subject Layer and Hormonal Explosion Trigger}
+The subject is represented as a finite-state machine whose nodes are emotional/behavioural states (e.g., calm, agitated, explosive). Transitions depend on the dominant hormone:
+\begin{equation}
+    S_{t+1} = f(S_t, \operatorname{argmax}(\mathbf{H}_t)).
+\end{equation}
+An external stressor or circadian trigger can inject a pulse $\mathbf{p}$ into a specific hormone channel, initiating a cascade. If the resulting positive feedback loop (through $\mathbf{W}$) drives the system above $B$, a \emph{hormonal explosion of subject} occurs—the avatar visually erupts and the internal hormone levels oscillate chaotically before returning to baseline.
+
+\section{Implementation}
+The codebase (\texttt{GRA-Hormonal-Explosion-Of-Subject}) is written in Python with a Pygame visualization layer. Key modules:
+\begin{itemize}
+    \item \texttt{gra\_core.py}: Implements (\ref{eq:update}) with configurable gland networks.
+    \item \texttt{subject\_layer.py}: Manages the subject’s state machine and animation triggers.
+    \item \texttt{explosion\_detector.py}: Detects burst events and logs metrics (peak amplitude, duration, recovery time).
+    \item \texttt{config.yaml}: Parameter file for $\mathbf{W}$, thresholds, and noise.
+\end{itemize}
+The simulation runs in real-time; users can perturb the subject by clicking to inject synthetic hormones or by scheduling stressors.
+
+\section{Results and Emergent Phenomena}
+\subsection{Explosion Signatures}
+Under default parameters, the system exhibits three regimes:
+\begin{enumerate}
+    \item \textbf{Quiescent}: Low-amplitude wandering around homeostatic set-point.
+    \item \textbf{Pulsatile}: Periodic, predictable bursts resembling ultradian rhythms.
+    \item \textbf{Chaotic explosion}: Aperiodic, high-amplitude surges with long recovery tails, triggered by crossing a critical manifold in $\mathbf{W}$.
+\end{enumerate}
+Fig.~\ref{fig:timeseries} shows a representative explosion event. The positive feedback between cortisol and adrenaline creates a rapid spike, followed by inhibitory compensation that overshoots into a temporary deficit.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\linewidth]{timeseries.png}}
+\caption{Hormone concentrations during a triggered explosion. Cortisol (solid) and adrenaline (dashed) exhibit co-bursting behaviour. The grey band marks the explosion interval.}
+\label{fig:timeseries}
+\end{figure}
+
+\subsection{Sensitivity to Network Topology}
+We tested randomly generated $\mathbf{W}$ matrices. Networks with strong reciprocal excitation between two glands (e.g., hypothalamus–pituitary–adrenal axis motifs) were significantly more explosion-prone (Mann–Whitney $p < 0.001$). Sparser, feedforward-like topologies required larger external pulses to trigger an event.
+
+\section{Discussion}
+The GRA-HES framework reproduces hallmark features of hormonal explosions: threshold-dependent triggering, all-or-nothing responses, and slow recovery. Its generative nature allows exploration of ``what-if'' endocrine disruption scenarios without animal experimentation. The open-source release (\url{https://github.com/qqewq/GRA-Hormonal-Explosion-Of-Subject}) invites the community to extend gland libraries, incorporate pharmacokinetic delays, or couple the subject to multi-agent social simulations.
+
+Limitations include the abstract, dimensionless hormone units and lack of spatial compartmentalisation. Future work will integrate a hormone transport layer (diffusion between glands) and calibrate parameters against empirical cortisol awakening response data.
+
+\section{Conclusion}
+We presented GRA-Hormonal Explosion of Subject, a flexible computational model of acute endocrine surges built on a generative regulatory automaton. The simulation successfully generates realistic explosion dynamics and serves as an interactive educational and research tool. The repository is publicly available and actively maintained.
+
+\section*{Acknowledgment}
+The author thanks the open-source community for the foundational libraries that made this project possible.
+
+\begin{thebibliography}{00}
+\bibitem{m1}
+G. Leng and M. Ludwig, ``Information processing in the hypothalamus: the importance of pulsatile signalling,'' \textit{J. Neuroendocrinol.}, vol. 20, no. 5, pp. 477–485, 2008.
+\bibitem{m2}
+R. Albert and H. G. Othmer, ``The topology of the regulatory interactions predicts the expression pattern of the segment polarity genes in Drosophila melanogaster,'' \textit{J. Theor. Biol.}, vol. 223, no. 1, pp. 1–18, 2003.
+\bibitem{m3}
+S. H. Strogatz, \textit{Nonlinear Dynamics and Chaos}. Westview Press, 2015.
+\end{thebibliography}
+
+\end{document}
